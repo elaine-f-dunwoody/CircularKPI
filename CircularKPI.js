@@ -176,15 +176,13 @@ define(["jquery", "text!./scripts/style.css", "./scripts/themes", "./scripts/d3.
                 };
 
 
-                // Decide what number should be displayed
-                var displayValue = showpercentage ? scaledValue : value;
-
                 radialProgress(element, width, height, colors, animationTime, showdecimals, showpercentage)
                     .diameter(width)
                     .label(label)
                     .extraLabel(extraLabel)
                     .onClick(select)
-                    .value(displayValue)
+                    .value(scaledValue) // arc only
+                    .displayValue(showpercentage ? scaledValue : value) // text only
                     .render();
 
             }.bind(this));

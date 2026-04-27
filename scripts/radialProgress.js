@@ -54,6 +54,8 @@ function radialProgress(parent, width, height, colors, animationTime, showdecima
         _minValue = 0,
         _maxValue = 100;
 
+    var _displayValue = null;
+
     var _currentArc = 0, _currentArc2 = 0, _currentArc3 = 0, _currentValue = 0;
 
     var _arc = d3.svg.arc()
@@ -236,7 +238,9 @@ function radialProgress(parent, width, height, colors, animationTime, showdecima
                         .attrTween("d", arcTween3);
                 }
 
-                label.datum((ratio * 100)); //Math.round
+
+                var labelTarget = _displayValue !== null ? _displayValue : (ratio * 100);
+                label.datum(labelTarget);
                 label.transition().duration(_duration)
                     .tween("text", labelTween);
                 //console.log(labelTween("54.32"));
@@ -255,16 +259,23 @@ function radialProgress(parent, width, height, colors, animationTime, showdecima
         var i = d3.interpolate(_currentValue, a);
         _currentValue = i(0);
 
-        return function (t) {
-            _currentValue = i(t);
-            if (showdecimals) {
-                this.textContent = Math.round(i(t) * 100) / 100 + percentageSymbol; //Show decimals, up to 2
-            }
-            else {
-                this.textContent = Math.round(i(t)) + percentageSymbol; //Don't show decimals
-            }
 
-        }
+        return function (t) {
+            var v = i(t);
+            _currentValue = v;
+
+            if (showpercentage) {
+                // Percentage display
+                this.textContent = showdecimals
+                    ? (Math.round(v * 100) / 100) + percentageSymbol
+                    : Math.round(v) + percentageSymbol;
+            } else {
+                // Raw value display (no %)
+                this.textContent = showdecimals
+                    ? (Math.round(v * 100) / 100)
+                    : Math.round(v);
+            }
+        };
     }
 
     function arcTween(a) {
@@ -319,6 +330,11 @@ function radialProgress(parent, width, height, colors, animationTime, showdecima
         return component;
     }
 
+    component.displayValue = function (_) {
+        if (!arguments.length) return _displayValue;
+        _displayValue = _;
+        return component;
+    };
 
     component.margin = function (_) {
         if (!arguments.length) return _margin;
