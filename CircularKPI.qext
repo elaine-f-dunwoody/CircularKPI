@@ -3,7 +3,7 @@
 	"description": "Circular KPI Visualization",
 	"icon": "kpi",
 	"type": "visualization",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"author": "",
 	"homepage": "",
 	"keywords": "qlik-sense, visualization",

@@ -112,31 +112,13 @@ define(["jquery", "text!./scripts/style.css", "./scripts/themes", "./scripts/d3.
 
 
             var rows, columns;
-
-            // Updated to respect aspect ration
-            var aspectRatio = width / height;
-            var tileGap = 12; // px of white space between KPIs
-
-            if (aspectRatio > 1.5) {
-                // Wide layout: allocate more columns proportionally
-                columns = Math.ceil(Math.sqrt(data.length * aspectRatio));
-            } else if (aspectRatio < 0.75) {
-                // Tall layout: fewer columns
-                columns = Math.ceil(Math.sqrt(data.length / aspectRatio));
-            } else {
-                // Balanced layout: near-square
+            if (height > width) {
                 columns = Math.ceil(Math.sqrt(data.length));
-            }
-
-            // Safety guards
-            columns = Math.min(columns, data.length);
-            columns = Math.max(columns, 1);
-
-            rows = Math.ceil(data.length / columns);
-
-
-            var tileWidth = Math.floor((width - (columns + 1) * tileGap) / columns);
-            var tileHeight = Math.floor((height - (rows + 1) * tileGap) / rows);
+                rows = Math.ceil(data.length / columns);
+            } else {
+                columns = Math.ceil(Math.sqrt(1.5 * data.length) / 1.5);
+                rows = Math.ceil(data.length / columns);
+            };
 
             var area = d3.select($("#" + id).get(0))
                 .selectAll('.area')
@@ -148,10 +130,8 @@ define(["jquery", "text!./scripts/style.css", "./scripts/themes", "./scripts/d3.
                     return id + '_circular-kpi-tile-' + i;
                 })
                 .attr('selected', 'no')
-                .style('width', tileWidth + 'px')
-                .style('height', tileHeight + 'px')
-                .style('margin', tileGap / 2 + 'px');
-
+                .style('width', Math.ceil(width / columns, 10) - 5 + 'px')
+                .style('height', Math.ceil(height / rows, 10) - 5 + 'px');
 
             data.forEach(function (d, i) {
                 if (HAS_TWO_DIMENSION) {
@@ -196,13 +176,15 @@ define(["jquery", "text!./scripts/style.css", "./scripts/themes", "./scripts/d3.
                 };
 
 
+                // Decide what number should be displayed
+                var displayValue = showpercentage ? scaledValue : value;
+
                 radialProgress(element, width, height, colors, animationTime, showdecimals, showpercentage)
                     .diameter(width)
                     .label(label)
                     .extraLabel(extraLabel)
                     .onClick(select)
-                    .value(scaledValue) // arc only
-                    .displayValue(showpercentage ? scaledValue : value) // text only
+                    .value(displayValue)
                     .render();
 
             }.bind(this));
